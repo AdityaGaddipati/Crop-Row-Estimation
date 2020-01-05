@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+	<model name="cotton9">
+      <pose>0 0 0  0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+		<collision name="collision">
+		    <geometry>
+		      <mesh>
+		        <uri>model://cotton9/cotton9.dae</uri>
+		      </mesh>
+		    </geometry>
+      	</collision>
+        <visual name="visual">
+          <geometry>
+            <mesh><uri>model://cotton9/cotton9.dae</uri></mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+</sdf>

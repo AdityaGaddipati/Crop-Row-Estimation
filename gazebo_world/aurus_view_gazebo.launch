@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <arg name="world" default="empty"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find aurus_gazebo)/worlds/cotton_farm3.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+	<!--param name="robot_description" command="$(find xacro)/xacro.py '$(find aurus_description)/urdf/aurus_sim.xacro'"/-->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find aurus_description)/urdf/aurus_sim.xacro'"/>
+  <!--param name="robot_description" command="$(find xacro)/xacro.py '$(find aurus_description)/urdf/farm_bot_deweeder_led.xacro'"/-->
+	<!--param name="robot_description" textfile="$(find aurus_description)/urdf/aurus.urdf" /-->
+
+  <!--node name="mybot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+   args="-urdf -param robot_description -model mybot" /-->
+  <node name="mybot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+   args="-urdf -param robot_description -model mybot_new" />
+   <!--node name="mybot_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+   args="-urdf -param robot_description -model farmbot_deweeder_led" /-->
+   
+  
+  <!-- send fake joint values -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="False"/>
+  </node>
+
+  <!-- Combine joint values -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
+  <!-- Show in Rviz   -->
+  <node name="rviz" pkg="rviz" type="rviz"/>
+  <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(find aurus_description)/launch/aurus.rviz"/-->
+
+	<node pkg="stereo_image_proc" type="stereo_image_proc" name="stereo_image_proc">
+		<!--remap from="left/image_raw"    to="left/image_raw_throttle_relay"/>
+		<remap from="left/camera_info"  to="left/camera_info_throttle"/>
+		<remap from="right/image_raw"   to="right/image_raw_throttle_relay"/>
+		<remap from="right/camera_info" to="right/camera_info_throttle"/-->
+		<param name="disparity_range" value="128"/>
+	</node>
+
+
+</launch>

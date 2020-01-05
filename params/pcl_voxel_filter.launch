@@ -1,0 +1,102 @@
+<launch>
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen" />
+
+  <!-- Run a VoxelGrid filter to clean NaNs and downsample the data -->
+  <node pkg="nodelet" type="nodelet" name="voxel_grid" args="load pcl/VoxelGrid pcl_manager" output="screen">
+    <remap from="~input" to="/points2" />
+    <rosparam>
+      filter_field_name: y
+      filter_limit_min: -1
+      filter_limit_max: 1
+      filter_limit_negative: False
+      leaf_size: 0.03
+    </rosparam>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="passthroughZ" args="load pcl/PassThrough pcl_manager" output="screen">
+    <remap from="~input" to="/voxel_grid/output" />
+    <rosparam>
+      filter_field_name: z
+      filter_limit_min: 0
+      filter_limit_max: 3
+      filter_limit_negative: False
+    </rosparam>
+  </node>
+
+  <!--node pkg="nodelet" type="nodelet" name="passthroughX" args="load pcl/PassThrough pcl_manager" output="screen">
+    <remap from="~input" to="/voxel_grid/output" />
+    <rosparam>
+      filter_field_name: x
+      filter_limit_min: 0
+      filter_limit_max: 5
+      filter_limit_negative: False
+    </rosparam>
+  </node-->
+
+  <!--node pkg="nodelet" type="nodelet" name="passthroughY" args="load pcl/PassThrough pcl_manager" output="screen">
+    <remap from="~input" to="/passthroughX/output" />
+    <rosparam>
+      filter_field_name: y
+      filter_limit_min: -2
+      filter_limit_max: 2
+      filter_limit_negative: False
+    </rosparam>
+  </node-->
+
+  <!-- Estimate point normals -->
+  <!--node pkg="nodelet" type="nodelet" name="normal_estimation" args="load pcl/NormalEstimationOMP pcl_manager" output="screen">
+    <remap from="~input" to="/passthroughY/output" />
+    <rosparam>
+      # -[ Mandatory parameters
+      k_search: 0
+      radius_search: 0.035
+      # Set the spatial locator. Possible values are: 0 (ANN), 1 (FLANN), 2 (organized)
+      spatial_locator: 2
+    </rosparam>
+  </node-->
+
+  <!-- Segment the table plane -->
+  <!--node pkg="nodelet" type="nodelet" name="planar_segmentation" args="load pcl/SACSegmentationFromNormals pcl_manager" output="screen">
+    <remap from="~input"   to="/passthroughY/output" />
+    <remap from="~normals" to="/normal_estimation/output" />
+    <rosparam>
+      # -[ Mandatory parameters
+      # model_type:
+      # 0: SACMODEL_PLANE
+      # 1: SACMODEL_LINE
+      # 2: SACMODEL_CIRCLE2D
+      # 3: SACMODEL_CIRCLE3D
+      # 4: SACMODEL_SPHERE
+      # 5: SACMODEL_CYLINDER
+      # 6: SACMODEL_CONE
+      # 7: SACMODEL_TORUS
+      # 8: SACMODEL_PARALLEL_LINE
+      # 9: SACMODEL_PERPENDICULAR_PLANE
+      # 10: SACMODEL_PARALLEL_LINES
+      # 11: SACMODEL_NORMAL_PLANE
+      # 12: SACMODEL_NORMAL_SPHERE
+      # 13: SACMODEL_REGISTRATION
+      # 14: SACMODEL_REGISTRATION_2D
+      # 15: SACMODEL_PARALLEL_PLANE
+      # 16: SACMODEL_NORMAL_PARALLEL_PLANE
+      # 17: SACMODEL_STICK
+      model_type: 11
+      distance_threshold: 0.1
+      max_iterations: 1000
+      method_type: 0
+      optimize_coefficients: true
+      normal_distance_weight: 0.1
+      eps_angle: 0.09
+    </rosparam>
+  </node>
+
+  <node pkg="nodelet" type="nodelet" name="extract_plane_indices" args="load pcl/ExtractIndices pcl_manager" output="screen">
+    <remap from="~input"   to="/passthroughY/output" />
+    <remap from="~indices" to="/planar_segmentation/inliers" />
+    <rosparam>
+      negative: True
+    </rosparam>
+  </node-->
+
+</launch>
+
